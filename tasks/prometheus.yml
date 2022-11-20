@@ -1,0 +1,123 @@
+---
+- hosts: prometheus
+  become: yes
+  vars_files:
+    - "/vars/nginx.yml"
+  tasks:
+  - name: Create user prometheus
+    user:
+      name: prometheus
+      create_home: no
+      shell: /bin/false
+
+  - name: Create directories for prometheus
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: prometheus
+      group: prometheus
+    loop:
+      - '/tmp/prometheus'
+      - '/etc/prometheus'
+      - '/var/lib/prometheus'
+
+  - name: Download and unpack prometheus
+    unarchive:
+      src: https://github.com/prometheus/prometheus/releases/download/v2.39.1/prometheus-2.39.1.linux-amd64.tar.gz
+      dest: /tmp/prometheus
+      creates: /tmp/prometheus/prometheus-2.39.1.linux-amd64
+      remote_src: yes
+
+  - name: Copy bin files to prometheus
+    copy:
+      src: /tmp/prometheus/prometheus-2.39.1.linux-amd64/{{ item }}
+      dest: /usr/local/bin/
+      remote_src: yes
+      mode: preserve
+      owner: prometheus
+      group: prometheus
+    loop: [ 'prometheus', 'promtool' ]
+
+  - name: Copy conf files to prometheus
+    copy:
+      src: /tmp/prometheus/prometheus-2.39.1.linux-amd64/{{ item }}
+      dest: /etc/prometheus/
+      remote_src: yes
+      mode: preserve
+      owner: prometheus
+      group: prometheus
+    loop: [ 'console_libraries', 'consoles' ]
+
+  - name: Copy conf file prometheus
+    template:
+      src: ../files/prometheus/prometheus.yml.j2
+      dest: /etc/prometheus/prometheus.yml
+      mode: preserve
+      owner: prometheus
+      group: prometheus
+
+  - name: Copy file prometheus to run service
+    template:
+      src: ../files/prometheus/prometheus.service.j2
+      dest: /etc/systemd/system/prometheus.service
+      mode: preserve
+
+  - name: Start prometheus service
+    service:
+      name: prometheus
+      state: started
+      enabled: yes
+
+  - name: Create user alertmanager
+    user:
+      name: alertmanager
+      create_home: no
+      shell: /bin/false
+
+  - name: Create directories for alertmanager
+    file:
+      path: "{{ item }}"
+      state: directory
+      owner: alertmanager
+      group: alertmanager
+    loop:
+      - '/tmp/alertmanager'
+      - '/etc/alertmanager'
+      - '/var/lib/prometheus/alertmanager'
+
+  - name: Download and unpack alertmanager
+    unarchive:
+      src: https://github.com/prometheus/alertmanager/releases/download/v0.24.0/alertmanager-0.24.0.linux-amd64.tar.gz
+      dest: /tmp/alertmanager
+      creates: /tmp/alertmanager/alertmanager-0.24.0.linux-amd64
+      remote_src: yes
+
+  - name: Copy bin files to alertmanager
+    copy:
+      src: /tmp/alertmanager/alertmanager-0.24.0.linux-amd64/{{ item }}
+      dest: /usr/local/bin/
+      remote_src: yes
+      mode: preserve
+      owner: alertmanager
+      group: alertmanager
+    loop: [ 'alertmanager', 'amtool' ]
+
+  - name: Copy conf file to alertmanager
+    copy:
+      src: /tmp/alertmanager/alertmanager-0.24.0.linux-amd64/alertmanager.yml
+      dest: /etc/alertmanager/
+      remote_src: yes
+      mode: preserve
+      owner: alertmanager
+      group: alertmanager
+
+  - name: Copy file alertmanager to run service
+    template:
+      src=../files/prometheus/alertmanager.service.j2
+      dest=/etc/systemd/system/alertmanager.service
+
+  - name: Start alertmanager service
+    service:
+      name: alertmanager
+      state: started
+      enabled: yes

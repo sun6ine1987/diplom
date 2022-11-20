@@ -1,0 +1,32 @@
+filebeat.inputs:
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/nginx/access.log
+    fields:
+      type: nginx_access
+    fields_under_root: true
+
+  - type: log
+    enabled: true
+    paths:
+      - /var/log/nginx/error.log
+    fields:
+      type: nginx_error
+    fields_under_root: true
+
+processors:
+  - drop_fields:
+      fields: ["beat", "input_type", "prospector", "input", "host", "agent", "ecs"]
+
+output.elasticsearch:
+  hosts: ["{{ elasticsearch_server }}:9200"]
+  username: "elastic"
+  password: "password"
+  indices:
+    - index: "filebeat-8.5.0-%{+yyyy.MM.dd}"
+
+setup.kibana:
+  host: "{{ kibana_server }}:5601"
+  username: "kibana"
+  password: "password"

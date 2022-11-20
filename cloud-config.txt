@@ -1,0 +1,15 @@
+#cloud-config
+users:
+  - name: ubuntu
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh-authorized-keys:
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOAZMyJKK3Koaj4qYNTvfxeadZJgvGjc8XLtSCx7FOWb danilova@debian
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOAZMyJKK3Koaj4qYNTvfxeadZJgvGjc8XLtSCx7FOWb ubuntu@elasticsearch
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOAZMyJKK3Koaj4qYNTvfxeadZJgvGjc8XLtSCx7FOWb ubuntu@kibana
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOAZMyJKK3Koaj4qYNTvfxeadZJgvGjc8XLtSCx7FOWb ubuntu@nginx-1
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOAZMyJKK3Koaj4qYNTvfxeadZJgvGjc8XLtSCx7FOWb ubuntu@nginx-2
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOAZMyJKK3Koaj4qYNTvfxeadZJgvGjc8XLtSCx7FOWb ubuntu@prometheus
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOAZMyJKK3Koaj4qYNTvfxeadZJgvGjc8XLtSCx7FOWb ubuntu@grafana
+      - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIOAZMyJKK3Koaj4qYNTvfxeadZJgvGjc8XLtSCx7FOWb ubuntu@bastion
